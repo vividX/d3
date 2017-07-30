@@ -66,13 +66,13 @@
 			height:50px;
 			width:50px;
 		}
-		#rect, #map, #stack, #pie, #scatter, #force {
+		#rect, #map, #stack, #pie, #scatter, #force, #cluster {
 			width:600px;
 			height:600px;
 			margin:30px;
 			border:2px dashed #ccc
 		}
-		#rect, #map, #stack {
+		#rect, #map, #stack, #cluster {
 			float:left;
 		}
 		#pie, #scatter, #force {
@@ -89,6 +89,20 @@
 		.axis text{
 			font-family: sans-serif;
 			font-size: 11px;
+		}
+		
+		/*cluster*/
+		.node {
+				font: 12px sans-serif;
+			}
+		.node circle {
+			fill: #000;
+			stroke-width: 1.5px;
+		}
+		.link {
+			fill: none;
+			stroke: #ccc;
+			stroke-width: 1.5px;
 		}
 			
 		</style>
@@ -112,6 +126,8 @@
 			<div id="scatter"></div>
 			<div id="stack"></div>
 			<div id="force"></div>
+			<div id="cluster"></div>
+			
 		</div>
 		<div id="tooltip" class="hidden">
 			<p><strong>Important Label Heading</strong></p>
@@ -981,6 +997,118 @@
 				nodes.attr("cx", function(d) { return d.x; })
 					.attr("cy", function(d) { return d.y; });
 			})
+			
+			// cluster
+			var width7 = 600,height7 = 600;
+			
+			//Create SVG element
+			var svg7 = d3.select("#cluster")
+						.append("svg")
+						.attr("width", width7)
+						.attr("height", height7)
+						.append("g")
+						.attr("transform", "translate(40,20)");
+			
+			//Define cluster layout
+			var cluster = d3.layout.cluster()
+							.size([width7 - 100, height7 - 200]);
+							
+			var colors7 = d3.scale.category20();
+			
+			d3.json("data/cities.json", function(error,root){
+			
+				//Define diagonal generator
+				var diagonal = d3.svg.diagonal();
+							//.projection(function(d) { return [d.y, d.x]; });
+				
+				//Transform data format
+				var nodes = cluster.nodes(root);
+				var links = cluster.links(nodes);
+				
+				var link = svg7.selectAll(".link")
+					.data(links)
+					.enter()
+					.append("path")
+					.attr("class", "link")
+					.attr("d", diagonal);
+				
+				var node = svg7.selectAll(".node")
+					.data(nodes)
+					.enter()
+					.append("g")
+					.attr("class", "node")
+					.attr("transform", function(d){ return  "translate(" + d.x + "," +  + d.y + ")"});
+					
+					
+				node.append("circle")
+					.attr("r", 4.5)
+					.style("fill", function(d,i){ return colors7(i)});
+					
+				/*node.append("text")
+					.attr("dx", function(d) { return d.children ? -8 : 8;})
+					.attr("dy", 3)
+					.style("text-anchor", function(d) {return d.children ? "end" : "start";})
+					.text(function(d) { return d.name; });*/
+				node.append("text")
+					.attr("dx", function(d) { return d.children ? -8 : -16;})
+					.attr("dy", function(d) { return d.children ? 3 : 3;})
+					.style("text-anchor", function(d) {return "end";})
+					.text(function(d) { return d.name; })
+					.attr("transform", function(d){ return  d.children ? "rotate(0)" : "rotate(-90)"});
+				
+			});
+			
+			var isConverse = false;
+			
+			var updateCluster = function(){
+			
+				isConverse = !isConverse;
+				
+				if (isConverse)
+				{
+					//Define diagonal generator
+					var diagonal = d3.svg.diagonal()
+								.projection(function(d) { return [d.y, d.x]; });
+					
+					//Update link direction	
+					svg7.transition()
+						.duration(500)
+						.selectAll(".link")
+						.attr("d", diagonal);
+					
+					//Update node direction
+					svg7.transition()
+						.duration(500)
+						.selectAll(".node")
+						.attr("transform", function(d){ return  "translate(" + d.y + "," +  + d.x + ")"})
+						.selectAll("text")
+							.attr("dx", function(d) { return d.children ? -8 : 8;})
+							.attr("dy", 3)
+							.style("text-anchor", function(d) {return d.children ? "end" : "start";})
+							.attr("transform", "rotate(0)");;
+				} else {
+					var diagonal = d3.svg.diagonal();
+					
+					//Update link direction	
+					svg7.transition()
+						.duration(500)
+						.selectAll(".link")
+						.attr("d", diagonal);
+					
+					//Update node direction
+					svg7.transition()
+						.duration(500)
+						.selectAll(".node")
+						.attr("transform", function(d){ return  "translate(" + d.x + "," +  + d.y + ")"})
+						.selectAll("text")
+							.attr("dx", function(d) { return d.children ? -8 : -16;})
+							.attr("dy", function(d) { return d.children ? 3 : 3;})
+							.style("text-anchor", function(d) {return "end";})
+							.attr("transform", function(d){ return  d.children ? "rotate(0)" : "rotate(-90)"});
+				}
+			}
+			
+			var tCluster = window.setInterval(updateCluster, 2000);
 		</script>
 	</body>
 </html>
