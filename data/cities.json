@@ -6,40 +6,68 @@
 			"name":"Zhejiang",
 			"children":
 			[
-				{"name":"Hangzhou"},
-				{"name":"Ningbo"},
-				{"name":"Wenzhou"},
-				{"name":"Shaoxing"}
+				{	"name":"Hangzhou"},
+				{	"name":"Ningbo"},
+				{	"name":"Wenzhou"},
+				{	"name":"Shaoxing"}
 			]
 		},
 		{
 			"name":"Guangxi",
 			"children":
 			[
-				{"name":"Guilin"},
-				{"name":"Nanning"},
-				{"name":"Liuzhou"},
-				{"name":"Fangchenggang"}
+				{	"name":"Guilin",
+					"children":
+					[
+						{"name":"Xiufengqu"},
+						{"name":"Diecaiqu"},
+						{"name":"Xiangshanqu"},
+						{"name":"Qixingqu"}
+					]
+				},
+				{	"name":"Nanning"},
+				{	"name":"Liuzhou"},
+				{	"name":"Fangchenggang"}
 			]
 		},
 		{
 			"name":"Heilongjiang",
 			"children":
 			[
-				{"name":"Haerbin"},
-				{"name":"Qiqihaer"},
-				{"name":"Mudanjiang"},
-				{"name":"Daqin"}
+				{	"name":"Haerbin"},
+				{	"name":"Qiqihaer"},
+				{	"name":"Mudanjiang"},
+				{	"name":"Daqin"}
 			]
 		},
 		{
 			"name":"Xinjiang",
 			"children":
 			[
-				{"name":"Wulumuqi"},
-				{"name":"Kelamayi"},
-				{"name":"Tulufan"},
-				{"name":"Hami"}
+				{	"name":"Wulumuqi"},
+				{	"name":"Kelamayi"},
+				{	"name":"Tulufan"},
+				{	"name":"Hami"}
+			]
+		},
+		{
+			"name":"Hubei",
+			"children":
+			[
+				{	"name":"Wuhan"},
+				{	"name":"Huangshi"},
+				{	"name":"Huanggang"},
+				{	"name":"Jingmen"}
+			]
+		},
+		{
+			"name":"Hunan",
+			"children":
+			[
+				{	"name":"Changsha"},
+				{	"name":"Yueyang"},
+				{	"name":"Zhuzhou"},
+				{	"name":"Fenghuang"}
 			]
 		}
 	]
