@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title>D3 Page Template</title>
+		<title>Crawler simulation</title>
 		<script type="text/javascript" src="d3/d3.v3.js"></script>
 		<style>
 			.node {
@@ -20,7 +20,9 @@
 		</style>
 	</head>
 	<body>
-		<p style="float:left;margin-top:400px"> click me <p>
+		<div style="float:left;font: 28px sans-serif;">Crawler simulation<div>
+		<div style="float:left;margin-top:200px;margin-left:100px;"><img id = "hint" src="img/pause.png"></img><div>
+		<div style="float:left;margin-top:200px;"><img id = "list" src="img/list.png"></img><div>
 		<script type="text/javascript">
 			var width8 = 1000,height8 = 800;
 			
@@ -36,10 +38,11 @@
 			var tree = d3.layout.tree()
 							.size([360, 300])
 							.separation(function(a, b) { return (a.parent == b.parent ? 1 : 2) / a.depth; });
-							
+			
+			//Define color
 			var colors8 = d3.scale.category20();
 			
-			
+			//Initiate root
 			var root = {
 				"name":"root",
 				"children":
@@ -49,15 +52,11 @@
 						"children":
 						[
 							{	"name":"node11"},
-							{	"name":"node12"},
-							{	"name":"node13"},
-							{	"name":"node14"}
+							{	"name":"node12"}
 						]
 					}
 				]
-			};
-			
-			//root['children'] = [];
+			};		
 		
 			//Define diagonal generator
 			var diagonal = d3.svg.diagonal.radial()
@@ -92,11 +91,16 @@
 				.text(function(d) { return d.name; })
 				.attr("transform", function(d) { return d.children ? "rotate(180)" : null; });			
 			
+			var isStop = false;
+			var isRadius = true;
+			
+			//Define update function, add new data to root
 			var update = function(){
+				//add new node
 				root['children'].push({"name":"node1"});
 				
-				//add new node
-				var maxNumber = (root['children'].length - 1) >= 0 ? root['children'].length - 1 : 0;
+				//add new node-sub1
+				var maxNumber = (root['children'].length - 1) > 0 ? root['children'].length - 1 : 0;
 				var number = Math.floor(Math.random() * maxNumber);
 				if (root['children'][number]['children'] == undefined)
 				{
@@ -112,20 +116,20 @@
 					var maxNumber2 = (root['children'][number]['children'].length - 1) > 0 ? root['children'][number]['children'].length - 1 : 0;
 					if (maxNumber2 > 0)
 					{
-						console.log(maxNumber2);
+						//add new node-sub2
 						var number2 = Math.floor(Math.random() * maxNumber2);
-						if (root['children'][number]['children'][number2]['children'] == undefined)
+						var subRoot = root['children'][number]['children'][number2];
+						if (subRoot['children'] == undefined)
 						{
-							root['children'][number]['children'][number2]['children']= [];
-							root['children'][number]['children'][number2]['children'].push({"name":"node11"});
-							root['children'][number]['children'][number2]['children'].push({"name":"node12"});
+							subRoot['children']= [];
+							subRoot['children'].push({"name":"node11"});
+							subRoot['children'].push({"name":"node12"});
 						} else {
-							root['children'][number]['children'][number2]['children'].push({"name":"node11"});
-							root['children'][number]['children'][number2]['children'].push({"name":"node12"});
+							subRoot['children'].push({"name":"node11"});
+							subRoot['children'].push({"name":"node12"});
 						}
 					}
 				}
-				
 				
 				svg8.selectAll("text").remove();
 				
@@ -137,55 +141,170 @@
 					
 				var newnode = svg8.selectAll(".node")
 					.data(nodes);
-					
-				//enter	
-				newlink.enter()
-					.append("path")
-					.attr("class", "link")
-					.attr("d", diagonal);
-			
-				newnode.enter()
-					.append("g")
-					.attr("class", "node")
-					.attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; });
-									
-				newnode.append("circle")
-					.attr("r", 4.5)
-					.style("fill", function(d,i){ return colors8(i)});
 				
-				newnode.append("text")
-					.attr("dx", function(d) { return d.children ? -8 : 8;})
-					.attr("dy", 3)
-					.style("text-anchor", function(d) {return d.children ? "end" : "start";})
-					.text(function(d) { return d.name; })
-					.attr("transform", function(d) { return d.children ? "rotate(180)" : null; });
+				if (isRadius){
+					//if isRadius, then update...
+					//enter	
+					newlink.enter()
+						.append("path")
+						.attr("class", "link")
+						.attr("d", diagonal);
 				
-				//update
-				newlink.transition()
-					.duration(400)
-					.attr("d", diagonal);
+					newnode.enter()
+						.append("g")
+						.attr("class", "node")
+						.attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; });
+										
+					newnode.append("circle")
+						.attr("r", 4.5)
+						.style("fill", function(d,i){ return colors8(i)});
 					
-				newnode.transition()
-					.duration(400)
-					.attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
-					.selectAll("circle")
-						.style("fill", function(d,i){ return colors8(i)})
-					.selectAll("text")
+					newnode.append("text")
 						.attr("dx", function(d) { return d.children ? -8 : 8;})
 						.attr("dy", 3)
 						.style("text-anchor", function(d) {return d.children ? "end" : "start";})
 						.text(function(d) { return d.name; })
 						.attr("transform", function(d) { return d.children ? "rotate(180)" : null; });
-
+					
+					//update
+					newlink.transition()
+						.duration(400)
+						.attr("d", diagonal);
+						
+					newnode.transition()
+						.duration(400)
+						.attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
+						.selectAll("circle")
+							.style("fill", function(d,i){ return colors8(i)})
+						.selectAll("text")
+							.attr("dx", function(d) { return d.children ? -8 : 8;})
+							.attr("dy", 3)
+							.style("text-anchor", function(d) {return d.children ? "end" : "start";})
+							.text(function(d) { return d.name; })
+							.attr("transform", function(d) { return d.children ? "rotate(180)" : null; });
+				}
+				else {
+					//if is linear, then update...
+					//enter	
+					newlink.enter()
+						.append("path")
+						.attr("class", "link")
+						.attr("d", diagonal);
 				
-				
+					newnode.enter()
+						.append("g")
+						.attr("class", "node")
+						.attr("transform", function(d){ return  "translate(" + d.y + "," +  + d.x + ")"});
+										
+					newnode.append("circle")
+						.attr("r", 4.5)
+						.style("fill", function(d,i){ return colors8(i)});
+					
+					newnode.append("text")
+						.attr("dx", function(d) { return d.children ? -8 : 8;})
+						.attr("dy", 3)
+						.style("text-anchor", function(d) {return d.children ? "end" : "start";})
+						.text(function(d) { return d.name; })
+						.attr("transform", "rotate(0)");	
+					
+					//update
+					newlink.transition()
+						.duration(400)
+						.attr("d", diagonal);
+						
+					newnode.transition()
+						.duration(400)
+						.attr("transform", function(d){ return  "translate(" + d.y + "," +  + d.x + ")"})
+						.selectAll("circle")
+							.style("fill", function(d,i){ return colors8(i)})
+						.selectAll("text")
+							.attr("dx", function(d) { return d.children ? -8 : 8;})
+							.attr("dy", 3)
+							.style("text-anchor", function(d) {return d.children ? "end" : "start";})
+							.text(function(d) { return d.name; })
+							.attr("transform", "rotate(0)");
+				}
+			};
 			
-			}
+			//auto add new data to root...
 			var t = window.setInterval(update,500);
-			d3.select("p")
+			
+			//change layout...linear or radius
+			var updateTree = function(){
+				
+				isRadius = !isRadius;
+				
+				if(isRadius){
+					svg8.attr("transform", "translate(500,400)");
+
+					tree.size([360, 300])
+						.separation(function(a, b) { return (a.parent == b.parent ? 1 : 2) / a.depth; });
+									
+					diagonal = d3.svg.diagonal.radial()
+						.projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });
+						
+					nodes = tree.nodes(root);
+					links = tree.links(nodes);
+
+					svg8.selectAll(".link")
+						.data(links)
+						.transition()
+						.duration(500)
+						.attr("d", diagonal);
+					
+					svg8.selectAll(".node")
+						.data(nodes)
+						.transition()
+						.duration(500)
+						.attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
+						.selectAll("text")
+						.attr("transform", function(d) { return d.children ? "rotate(180)" : "rotate(0)"; });
+						
+				} else {
+					svg8.attr("transform", "translate(100,0)");
+					
+					tree.size([width8 - 100, height8])
+						.separation(function(a, b) { return (a.parent == b.parent ? 1 : 2); });
+						
+					diagonal = d3.svg.diagonal()
+						.projection(function(d) { return [d.y, d.x]; });
+						
+					nodes = tree.nodes(root);
+					links = tree.links(nodes);
+
+					svg8.selectAll(".link")
+						.data(links)
+						.transition()
+						.duration(500)
+						.attr("d", diagonal);
+					
+					svg8.selectAll(".node")
+						.data(nodes)
+						.transition()
+						.duration(500)
+						.attr("transform", function(d){ return  "translate(" + d.y + "," +  + d.x + ")"})
+						.selectAll("text")
+						.attr("transform", "rotate(0)");	
+				}
+				
+			};
+			
+			
+			d3.select("#hint")
 				.on("click", function(){
-					window.clearInterval(t);
+					isStop = !isStop;
+					
+					if(isStop){
+						document.getElementById("hint").src = "img/play.png";
+						window.clearInterval(t);
+					}else{
+						document.getElementById("hint").src = "img/pause.png";
+						t = window.setInterval(update,500);
+					}
+					
 				});
+			
+			d3.select("#list").on("click", updateTree);
 			
 		</script>
 	</body>
